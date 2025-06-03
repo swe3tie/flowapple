@@ -11,6 +11,16 @@
   button { margin-top: 1rem; padding: 0.5rem 1rem; font-size: 1rem; }
   video { margin-top: 1rem; max-width: 100%; border: 1px solid #ccc; border-radius: 4px; }
   #loginBtn { background-color: #1DB954; color: white; border: none; cursor: pointer; }
+
+  #sensitiveInfo {
+    margin-top: 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 0.5rem;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -31,14 +41,20 @@
   <button id="copyBtn" style="display:none;">Copy URL Canvas vào Clipboard</button>
 
   <video id="canvasPlayer" controls loop muted></video>
+
+  <hr>
+
+  <button id="showSensitiveBtn" style="background-color:#e63946; color:white; border:none; cursor:pointer;">
+    Hiển thị thông tin nhạy cảm (token, tên, email)
+  </button>
+  <pre id="sensitiveInfo"></pre>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/protobufjs/dist/protobuf.min.js"></script>
 <script>
 (async () => {
-  // Thay bằng client ID của bạn đăng ký trên https://developer.spotify.com/dashboard/applications
   const clientId = "de3674fcad564fa38411e53ceb915f6c";
-  const redirectUri = window.location.origin + window.location.pathname; // cùng trang hiện tại, để nhận token trả về
+  const redirectUri = window.location.origin + window.location.pathname;
 
   const loginSection = document.getElementById("loginSection");
   const mainSection = document.getElementById("mainSection");
@@ -50,20 +66,20 @@
   const copyBtn = document.getElementById("copyBtn");
   const canvasPlayer = document.getElementById("canvasPlayer");
 
-  // Spotify OAuth 2.0 Implicit Grant URL
+  const showSensitiveBtn = document.getElementById("showSensitiveBtn");
+  const sensitiveInfo = document.getElementById("sensitiveInfo");
+
   function getSpotifyLoginUrl() {
-    const scopes = "user-read-private user-read-email";  // Không cần scope vì chỉ dùng để gọi API nội bộ Canvas, token chỉ dùng cho xác thực
+    const scopes = "user-read-private user-read-email";
     return `https://accounts.spotify.com/authorize?client_id=${encodeURIComponent(clientId)}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
   }
 
-  // Lấy access_token từ URL hash (window.location.hash)
   function getTokenFromUrl() {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     return params.get("access_token");
   }
 
-  // Xóa token trong URL để không bị lặp lại khi reload
   function clearUrlHash() {
     history.replaceState("", document.title, window.location.pathname + window.location.search);
   }
@@ -129,10 +145,8 @@
 
   function extractTrackId(input) {
     input = input.trim();
-    // Nếu input là URL spotify track thì lấy track id
     const match = input.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
     if (match) return match[1];
-    // Nếu chỉ là track id thì trả về luôn
     if (/^[a-zA-Z0-9]+$/.test(input)) return input;
     return null;
   }
@@ -181,13 +195,34 @@
     };
   }
 
-  // Main logic
+  async function fetchUserInfo(token) {
+    const res = await fetch("https://api.spotify.com/v1/me", {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) throw new Error(`Không thể lấy thông tin user (HTTP ${res.status})`);
+    return await res.json();
+  }
+
+  // MAIN
   let accessToken = getTokenFromUrl();
 
   if (accessToken) {
     clearUrlHash();
     loginSection.style.display = "none";
     mainSection.style.display = "block";
+
+    // Lấy info user
+    try {
+      const userInfo = await fetchUserInfo(accessToken);
+      // Lưu thông tin để dùng khi nhấn nút show sensitive
+      window._userInfo = userInfo;
+      window._accessToken = accessToken;
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent = "Lỗi khi lấy thông tin user: " + e.message;
+    }
   } else {
     loginSection.style.display = "block";
     mainSection.style.display = "none";
@@ -241,6 +276,23 @@
       alert("Copy thất bại. Vui lòng copy thủ công.");
     }
   };
+
+  showSensitiveBtn.onclick = () => {
+    const confirmed = confirm("Thông tin này nhạy cảm, bạn có chắc muốn hiển thị token và thông tin cá nhân?");
+    if (!confirmed) return;
+
+    if (!window._accessToken || !window._userInfo) {
+      sensitiveInfo.textContent = "Chưa có thông tin token hoặc user.";
+    } else {
+      sensitiveInfo.textContent =
+        `Access Token:\n${window._accessToken}\n\n` +
+        `Tên người dùng: ${window._userInfo.display_name}\n` +
+        `Email: ${window._userInfo.email}\n` +
+        `ID người dùng: ${window._userInfo.id}`;
+    }
+    sensitiveInfo.style.display = "block";
+  };
+
 })();
 </script>
 
