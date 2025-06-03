@@ -1,123 +1,82 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Spotify Canvas URL Fetcher & Player (Login Required)</title>
-<style>
-  body { font-family: Arial, sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
-  #status { margin-bottom: 1rem; }
-  #urls { white-space: pre-wrap; background: #f0f0f0; padding: 0.5rem; border-radius: 4px; max-height: 150px; overflow-y: auto; }
-  button { margin-top: 1rem; padding: 0.5rem 1rem; font-size: 1rem; }
-  video { margin-top: 1rem; max-width: 100%; border: 1px solid #ccc; border-radius: 4px; }
-  #loginBtn { background-color: #1DB954; color: white; border: none; cursor: pointer; }
-
-  #sensitiveInfo {
-    margin-top: 1rem;
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    padding: 0.5rem;
-    border-radius: 4px;
-    white-space: pre-wrap;
-    display: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spotify Canvas Auto Fetcher</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
+    #status { margin-bottom: 1rem; }
+    #urls { white-space: pre-wrap; background: #f0f0f0; padding: 0.5rem; border-radius: 4px; max-height: 150px; overflow-y: auto; }
+    video { margin-top: 1rem; max-width: 100%; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; margin-top: 1rem; }
+    #loginBtn { background-color: #1DB954; color: white; border: none; cursor: pointer; }
+  </style>
 </head>
 <body>
+  <h1>Tự động lấy Canvas Spotify</h1>
 
-<h1>Spotify Canvas URL Fetcher & Player</h1>
+  <div id="loginSection">
+    <button id="loginBtn">Đăng nhập Spotify</button>
+  </div>
 
-<div id="loginSection">
-  <button id="loginBtn">Đăng nhập Spotify</button>
-</div>
+  <div id="mainSection" style="display:none;">
+    <div id="status">Đang chuẩn bị...</div>
+    <pre id="urls"></pre>
+    <video id="canvasPlayer" controls loop muted></video>
+  </div>
 
-<div id="mainSection" style="display:none;">
-  <p>Nhập Track ID hoặc URL bài hát Spotify:</p>
-  <input type="text" id="inputTrack" placeholder="vd: 5PLjpBivzvuaIIqqkQgnRK hoặc https://open.spotify.com/track/..." style="width:100%; padding:0.5rem; font-size:1rem;" />
-  <button id="fetchBtn">Lấy Canvas URL và Phát</button>
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs/dist/protobuf.min.js"></script>
+  <script>
+  (async () => {
+    const clientId = "de3674fcad564fa38411e53ceb915f6c";
+    const redirectUri = window.location.origin + window.location.pathname;
 
-  <div id="status">Chưa có dữ liệu.</div>
-  <pre id="urls"></pre>
-  <button id="copyBtn" style="display:none;">Copy URL Canvas vào Clipboard</button>
+    const loginBtn = document.getElementById("loginBtn");
+    const loginSection = document.getElementById("loginSection");
+    const mainSection = document.getElementById("mainSection");
+    const statusEl = document.getElementById("status");
+    const urlsEl = document.getElementById("urls");
+    const canvasPlayer = document.getElementById("canvasPlayer");
 
-  <video id="canvasPlayer" controls loop muted></video>
+    function getSpotifyLoginUrl() {
+      const scopes = "user-read-private user-read-email user-read-playback-state";
+      return `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
+    }
 
-  <hr>
+    function getTokenFromUrl() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      return params.get("access_token");
+    }
 
-  <button id="showSensitiveBtn" style="background-color:#e63946; color:white; border:none; cursor:pointer;">
-    Hiển thị thông tin nhạy cảm (token, tên, email)
-  </button>
-  <pre id="sensitiveInfo"></pre>
-</div>
+    function clearUrlHash() {
+      history.replaceState("", document.title, window.location.pathname + window.location.search);
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/protobufjs/dist/protobuf.min.js"></script>
-<script>
-(async () => {
-  const clientId = "de3674fcad564fa38411e53ceb915f6c";
-  const redirectUri = window.location.origin + window.location.pathname;
-
-  const loginSection = document.getElementById("loginSection");
-  const mainSection = document.getElementById("mainSection");
-  const loginBtn = document.getElementById("loginBtn");
-  const inputTrack = document.getElementById("inputTrack");
-  const fetchBtn = document.getElementById("fetchBtn");
-  const statusEl = document.getElementById("status");
-  const urlsEl = document.getElementById("urls");
-  const copyBtn = document.getElementById("copyBtn");
-  const canvasPlayer = document.getElementById("canvasPlayer");
-
-  const showSensitiveBtn = document.getElementById("showSensitiveBtn");
-  const sensitiveInfo = document.getElementById("sensitiveInfo");
-
-  function getSpotifyLoginUrl() {
-    const scopes = "user-read-private user-read-email";
-    return `https://accounts.spotify.com/authorize?client_id=${encodeURIComponent(clientId)}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
-  }
-
-  function getTokenFromUrl() {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    return params.get("access_token");
-  }
-
-  function clearUrlHash() {
-    history.replaceState("", document.title, window.location.pathname + window.location.search);
-  }
-
-  // Protobuf schema
-  const root = protobuf.Root.fromJSON({
-    nested: {
-      com: {
-        nested: {
-          spotify: {
-            nested: {
-              canvazcache: {
-                nested: {
-                  EntityCanvazResponse: {
-                    fields: {
-                      canvases: { rule: "repeated", type: "Canvaz", id: 1 },
-                      ttlInSeconds: { type: "int64", id: 2 },
-                    },
-                    nested: {
-                      Canvaz: {
-                        fields: {
-                          id: { type: "string", id: 1 },
-                          url: { type: "string", id: 2 },
-                          fileId: { type: "string", id: 3 },
-                          type: { type: "int32", id: 4 },
-                          entityUri: { type: "string", id: 5 },
-                          artist: { type: "Artist", id: 6 },
-                          explicit: { type: "bool", id: 7 },
-                          uploadedBy: { type: "string", id: 8 },
-                          etag: { type: "string", id: 9 },
-                          canvasUri: { type: "string", id: 11 },
-                        },
+    // Protobuf schema
+    const root = protobuf.Root.fromJSON({
+      nested: {
+        com: {
+          nested: {
+            spotify: {
+              nested: {
+                canvazcache: {
+                  nested: {
+                    EntityCanvazResponse: {
+                      fields: {
+                        canvases: { rule: "repeated", type: "Canvaz", id: 1 },
+                        ttlInSeconds: { type: "int64", id: 2 },
                       },
-                      Artist: {
-                        fields: {
-                          uri: { type: "string", id: 1 },
-                          name: { type: "string", id: 2 },
-                          avatar: { type: "string", id: 3 },
+                      nested: {
+                        Canvaz: {
+                          fields: {
+                            id: { type: "string", id: 1 },
+                            url: { type: "string", id: 2 },
+                            fileId: { type: "string", id: 3 },
+                            type: { type: "int32", id: 4 },
+                            entityUri: { type: "string", id: 5 },
+                          },
                         },
                       },
                     },
@@ -128,173 +87,102 @@
           },
         },
       },
-    },
-  });
-  const EntityCanvazResponse = root.lookupType("com.spotify.canvazcache.EntityCanvazResponse");
-
-  function encodeEntityCanvazRequest(trackUri) {
-    const prefix = 0x0a;
-    const uriBytes = new TextEncoder().encode(trackUri);
-    const length = uriBytes.length + 2;
-    return new Uint8Array([
-      prefix, length,
-      0x0a, uriBytes.length,
-      ...uriBytes,
-    ]);
-  }
-
-  function extractTrackId(input) {
-    input = input.trim();
-    const match = input.match(/spotify\.com\/track\/([a-zA-Z0-9]+)/);
-    if (match) return match[1];
-    if (/^[a-zA-Z0-9]+$/.test(input)) return input;
-    return null;
-  }
-
-  async function fetchCanvasUrls(token, trackId) {
-    statusEl.textContent = "Đang gửi yêu cầu đến Spotify...";
-    const trackUri = `spotify:track:${trackId}`;
-    const body = encodeEntityCanvazRequest(trackUri);
-
-    const res = await fetch("https://gue1-spclient.spotify.com/canvaz-cache/v0/canvases", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/x-protobuf",
-      },
-      body,
     });
+    const EntityCanvazResponse = root.lookupType("com.spotify.canvazcache.EntityCanvazResponse");
 
-    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-
-    const buffer = await res.arrayBuffer();
-    const textCheck = new TextDecoder().decode(buffer.slice(0, 20));
-    if (textCheck.startsWith("<!DOCTYPE") || textCheck.includes("<html")) {
-      throw new Error("Nhận được HTML thay vì protobuf — có thể bị chặn CORS hoặc token không hợp lệ.");
+    function encodeEntityCanvazRequest(trackUri) {
+      const prefix = 0x0a;
+      const uriBytes = new TextEncoder().encode(trackUri);
+      const length = uriBytes.length + 2;
+      return new Uint8Array([
+        prefix, length,
+        0x0a, uriBytes.length,
+        ...uriBytes,
+      ]);
     }
 
-    const uint8array = new Uint8Array(buffer);
-    const decoded = EntityCanvazResponse.decode(uint8array);
-    const urls = decoded.canvases.map(c => c.url).filter(Boolean);
+    async function fetchCanvasUrls(token, trackId) {
+      const trackUri = `spotify:track:${trackId}`;
+      const body = encodeEntityCanvazRequest(trackUri);
 
-    return urls;
-  }
+      const res = await fetch("https://gue1-spclient.spotify.com/canvaz-cache/v0/canvases", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/x-protobuf",
+        },
+        body,
+      });
 
-  function playCanvasVideos(urls) {
-    if (urls.length === 0) return;
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    let index = 0;
-    canvasPlayer.src = urls[index];
-    canvasPlayer.play();
+      const buffer = await res.arrayBuffer();
+      const uint8array = new Uint8Array(buffer);
+      const decoded = EntityCanvazResponse.decode(uint8array);
+      return decoded.canvases.map(c => c.url).filter(Boolean);
+    }
 
-    canvasPlayer.onended = () => {
-      index++;
-      if (index >= urls.length) index = 0;
+    function playCanvasVideos(urls) {
+      if (urls.length === 0) return;
+      let index = 0;
       canvasPlayer.src = urls[index];
       canvasPlayer.play();
-    };
-  }
 
-  async function fetchUserInfo(token) {
-    const res = await fetch("https://api.spotify.com/v1/me", {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    });
-    if (!res.ok) throw new Error(`Không thể lấy thông tin user (HTTP ${res.status})`);
-    return await res.json();
-  }
-
-  // MAIN
-  let accessToken = getTokenFromUrl();
-
-  if (accessToken) {
-    clearUrlHash();
-    loginSection.style.display = "none";
-    mainSection.style.display = "block";
-
-    // Lấy info user
-    try {
-      const userInfo = await fetchUserInfo(accessToken);
-      // Lưu thông tin để dùng khi nhấn nút show sensitive
-      window._userInfo = userInfo;
-      window._accessToken = accessToken;
-    } catch (e) {
-      console.error(e);
-      statusEl.textContent = "Lỗi khi lấy thông tin user: " + e.message;
+      canvasPlayer.onended = () => {
+        index = (index + 1) % urls.length;
+        canvasPlayer.src = urls[index];
+        canvasPlayer.play();
+      };
     }
-  } else {
-    loginSection.style.display = "block";
-    mainSection.style.display = "none";
-  }
 
-  loginBtn.onclick = () => {
-    window.location.href = getSpotifyLoginUrl();
-  };
+    let accessToken = getTokenFromUrl();
+    if (accessToken) {
+      clearUrlHash();
+      loginSection.style.display = "none";
+      mainSection.style.display = "block";
 
-  fetchBtn.onclick = async () => {
-    try {
-      urlsEl.textContent = "";
-      copyBtn.style.display = "none";
-      canvasPlayer.src = "";
-      canvasPlayer.pause();
+      try {
+        const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
 
-      const input = inputTrack.value;
-      const trackId = extractTrackId(input);
-      if (!trackId) {
-        statusEl.textContent = "Không tìm thấy Track ID hợp lệ trong input.";
-        return;
+        if (!res.ok) {
+          statusEl.textContent = `Không lấy được bài đang phát (HTTP ${res.status})`;
+          return;
+        }
+
+        const data = await res.json();
+        const trackId = data?.item?.id;
+        if (!trackId) {
+          statusEl.textContent = "Không có bài hát đang phát.";
+          return;
+        }
+
+        statusEl.textContent = `Đang phát: ${data.item.name} - ${data.item.artists.map(a => a.name).join(", ")}`;
+        const urls = await fetchCanvasUrls(accessToken, trackId);
+
+        if (urls.length === 0) {
+          statusEl.textContent += " (không có Canvas)";
+          return;
+        }
+
+        urlsEl.textContent = urls.join("\n");
+        playCanvasVideos(urls);
+
+      } catch (e) {
+        statusEl.textContent = "Lỗi: " + e.message;
+        console.error(e);
       }
 
-      statusEl.textContent = "Đang lấy dữ liệu...";
-      const urls = await fetchCanvasUrls(accessToken, trackId);
-
-      if (urls.length === 0) {
-        statusEl.textContent = "Không tìm thấy URL canvas cho track này.";
-        return;
-      }
-
-      statusEl.textContent = `Tìm thấy ${urls.length} URL canvas. Đã copy vào clipboard!`;
-      const urlText = urls.join("\n");
-      urlsEl.textContent = urlText;
-      await navigator.clipboard.writeText(urlText);
-      copyBtn.style.display = "inline-block";
-
-      playCanvasVideos(urls);
-
-    } catch (e) {
-      statusEl.textContent = "Lỗi: " + e.message;
-      console.error(e);
-    }
-  };
-
-  copyBtn.onclick = async () => {
-    try {
-      await navigator.clipboard.writeText(urlsEl.textContent);
-      alert("Đã copy lại vào clipboard!");
-    } catch {
-      alert("Copy thất bại. Vui lòng copy thủ công.");
-    }
-  };
-
-  showSensitiveBtn.onclick = () => {
-    const confirmed = confirm("Thông tin này nhạy cảm, bạn có chắc muốn hiển thị token và thông tin cá nhân?");
-    if (!confirmed) return;
-
-    if (!window._accessToken || !window._userInfo) {
-      sensitiveInfo.textContent = "Chưa có thông tin token hoặc user.";
     } else {
-      sensitiveInfo.textContent =
-        `Access Token:\n${window._accessToken}\n\n` +
-        `Tên người dùng: ${window._userInfo.display_name}\n` +
-        `Email: ${window._userInfo.email}\n` +
-        `ID người dùng: ${window._userInfo.id}`;
+      loginSection.style.display = "block";
     }
-    sensitiveInfo.style.display = "block";
-  };
 
-})();
-</script>
+    loginBtn.onclick = () => {
+      window.location.href = getSpotifyLoginUrl();
+    };
 
+  })();
+  </script>
 </body>
 </html>
