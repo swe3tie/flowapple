@@ -418,6 +418,12 @@ function updateLyricByProgress(progress_ms) {
 
 
     async function UpdatePlayer(data) {
+    if (!data || !data.item) {
+    	console.warn("If you see this error, press F5.");
+    	document.getElementById("mainContainer").style.opacity = 0;
+   	currentState = false;
+  	return;
+  }
   const isPlaying = data.is_playing;
   const songUri = data.item.uri;
   const trackId = data.item.id;
