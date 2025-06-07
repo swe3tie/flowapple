@@ -37,7 +37,7 @@
     }
 
     async function fetchLyrics(trackId) {
-      const url = `http://truearchive.ddns.net:3690/lyric?trackId=${encodeURIComponent(trackId)}`;
+      const url = `https://truearchive.ddns.net/spotify/lyric?trackId=${encodeURIComponent(trackId)}`;
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Lỗi lấy dữ liệu: ' + res.status);
