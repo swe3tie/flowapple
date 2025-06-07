@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<link type="image/png" sizes="96x96" rel="icon" href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlowApple // Lyric</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #333;
+    }
+    #trackId {
+      display: none; /* Ẩn trackId */
+      font-weight: bold;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    #lyric {
+      font-size: 28px;
+      height: 50px;
+      line-height: 50px;
+      transition: opacity 0.3s ease;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="lyric"></div>
+
+  <script>
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function fetchLyrics(trackId) {
+      const url = `http://truearchive.ddns.net:3690/lyric?trackId=${encodeURIComponent(trackId)}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Lỗi lấy dữ liệu: ' + res.status);
+        return await res.json();
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    async function getAccessToken(cid, cs, rt) {
+      const creds = btoa(`${cid}:${cs}`);
+      try {
+        const res = await fetch('https://accounts.spotify.com/api/token', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${creds}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `grant_type=refresh_token&refresh_token=${rt}`
+        });
+        if (!res.ok) throw new Error('Lỗi lấy access token');
+        const data = await res.json();
+        return data.access_token;
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    // Lấy info bài hát đang phát (id, tên, progress_ms)
+    async function getCurrentTrackInfo(token) {
+      try {
+        const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return {
+          id: data?.item?.id || null,
+          name: data?.item?.name || null,
+          progress_ms: data?.progress_ms || 0
+        };
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    let lyricData = null;
+    let currentTrackId = null;
+    let tokenGlobal = null;
+    let updateLyricInterval = null;
+
+    // Hàm hiển thị lyric theo thời gian progress_ms từ spotify
+    function updateLyricByProgress(progress_ms) {
+      const lyricElem = document.getElementById('lyric');
+      if (!lyricData || !lyricData.lyrics || lyricData.lyrics.length === 0) {
+        lyricElem.textContent = '';
+        return;
+      }
+
+      // Tìm câu lyric phù hợp với progress_ms
+      // Lyric có startTimeMs, lấy câu lớn nhất có startTimeMs <= progress_ms
+      let currentLine = '';
+      for (let i = 0; i < lyricData.lyrics.length; i++) {
+        const start = parseInt(lyricData.lyrics[i].startTimeMs, 10) || 0;
+        const nextStart = (i + 1 < lyricData.lyrics.length)
+          ? parseInt(lyricData.lyrics[i + 1].startTimeMs, 10)
+          : Number.MAX_SAFE_INTEGER;
+
+        if (progress_ms >= start && progress_ms < nextStart) {
+          currentLine = lyricData.lyrics[i].words || '';
+          break;
+        }
+      }
+
+      // Chỉ cập nhật nếu khác text đang hiển thị (giảm nhấp nháy)
+      if (lyricElem.textContent !== currentLine) {
+        lyricElem.style.opacity = 0;
+        setTimeout(() => {
+          lyricElem.textContent = currentLine;
+          lyricElem.style.opacity = 1;
+        }, 200);
+      }
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const cid = params.get('cid');
+      const cs = params.get('cs');
+      const rt = params.get('rt');
+
+      if (!cid || !cs || !rt) {
+        document.body.innerHTML = '<p style="color:red;">❗ Thiếu tham số cid, cs hoặc rt.</p>';
+        return;
+      }
+
+      tokenGlobal = await getAccessToken(cid, cs, rt);
+      if (!tokenGlobal) {
+        document.body.innerHTML = '<p style="color:red;">❗ Không lấy được access token.</p>';
+        return;
+      }
+
+      async function checkCurrentTrackLoop() {
+        const trackInfo = await getCurrentTrackInfo(tokenGlobal);
+        if (trackInfo && trackInfo.id) {
+          if (trackInfo.id !== currentTrackId) {
+            currentTrackId = trackInfo.id;
+            lyricData = await fetchLyrics(currentTrackId);
+
+            // Cập nhật title web
+            document.title = lyricData?.title || trackInfo.name || "FlowApple // Lyric";
+
+            // Bỏ interval cũ nếu có
+            if (updateLyricInterval) clearInterval(updateLyricInterval);
+
+            // Cập nhật lyric theo progress_ms liên tục mỗi 300ms
+            updateLyricByProgress(trackInfo.progress_ms); // cập nhật ngay
+            updateLyricInterval = setInterval(async () => {
+              const currentTrack = await getCurrentTrackInfo(tokenGlobal);
+              if (currentTrack && currentTrack.id === currentTrackId) {
+                updateLyricByProgress(currentTrack.progress_ms);
+              } else {
+                // Track đổi hoặc ngưng phát => dừng interval
+                clearInterval(updateLyricInterval);
+                updateLyricInterval = null;
+              }
+            }, 300);
+          } else {
+            // Track không đổi, cập nhật title nếu chưa có
+            if (document.title === "FlowApple // Lyric") {
+              document.title = trackInfo.name || "FlowApple // Lyric";
+            }
+          }
+        } else {
+          // Không có bài hát đang phát
+          if (updateLyricInterval) {
+            clearInterval(updateLyricInterval);
+            updateLyricInterval = null;
+          }
+          document.getElementById('lyric').textContent = 'Không tìm thấy bài hát đang phát // Rate Limit Error';
+          document.title = "FlowApple // Lyric";
+          currentTrackId = null;
+          lyricData = null;
+        }
+      }
+
+      await checkCurrentTrackLoop();
+      setInterval(checkCurrentTrackLoop, 120);
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
