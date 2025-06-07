@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlowApple // Canvas</title>
+  <link rel="icon" type="image/png" sizes="96x96" href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: transparent; /* ✨ bỏ nền đen */
+      overflow: hidden;
+    }
+
+    #player {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 100vw;
+      height: 100vh;
+      transform: translate(-50%, -50%) scale(1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent; /* ✨ bỏ nền đen */
+      opacity: 1;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    #player.zoom-out {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    #player.zoom-in {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    #player video, #player img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      background: transparent; /* ✨ nền trong suốt cho video/img */
+      user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="player"></div>
+
+  <script>
+    let lastTrackId = null;
+    let isAnimating = false;
+
+    async function getAccessToken(cid, cs, rt) {
+      const creds = btoa(`${cid}:${cs}`);
+      const res = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${creds}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `grant_type=refresh_token&refresh_token=${rt}`
+      });
+      const data = await res.json();
+      return data.access_token;
+    }
+
+    async function getCurrentTrack(accessToken) {
+      const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+
+      if (res.status === 204 || res.status === 401) return null;
+
+      const data = await res.json();
+      if (!data?.item) return null;
+
+      return { id: data.item.id, name: data.item.name };
+    }
+
+    async function updateMedia(trackId, trackName) {
+      if (trackId === lastTrackId || !trackId || isAnimating) return;
+      isAnimating = true;
+
+      document.title = trackName;
+
+      const mediaUrl = `http://truearchive.ddns.net:3690/canvas?trackId=${trackId}`;
+      const player = document.getElementById('player');
+
+      try {
+        player.classList.add('zoom-out');
+        player.classList.remove('zoom-in');
+
+        await new Promise(r => setTimeout(r, 400));
+        player.classList.remove('zoom-in', 'zoom-out');
+        player.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        player.style.opacity = '0';
+        player.offsetWidth;
+
+        const res = await fetch(mediaUrl, { method: 'HEAD' });
+        const contentType = res.headers.get('Content-Type');
+
+        if (contentType && contentType.includes('video')) {
+          player.innerHTML = `
+            <video src="${mediaUrl}" autoplay muted loop playsinline
+              style="background:transparent"
+              onerror="console.error('❌ Video failed to load')"></video>
+          `;
+        } else {
+          player.innerHTML = `<img src="${mediaUrl}" alt="Canvas image" />`;
+        }
+
+        lastTrackId = trackId;
+        player.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        player.style.transform = 'translate(-50%, -50%) scale(1)';
+        player.style.opacity = '1';
+
+        await new Promise(r => setTimeout(r, 400));
+        player.style.transition = '';
+      } catch (err) {
+        console.error("🔥 Error loading canvas:", err);
+        player.innerHTML = `<img src="${mediaUrl}" alt="Canvas image fallback" />`;
+
+        player.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        player.style.transform = 'translate(-50%, -50%) scale(1)';
+        player.style.opacity = '1';
+
+        await new Promise(r => setTimeout(r, 400));
+        player.style.transition = '';
+      } finally {
+        isAnimating = false;
+      }
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const cid = params.get('cid');
+      const cs = params.get('cs');
+      const rt = params.get('rt');
+
+      if (!cid || !cs || !rt) {
+        document.body.innerHTML = `
+          <p style="color:red; text-align:center; margin-top:20px;">
+            ❗ Missing URL parameters: <code>cid</code>, <code>cs</code>, <code>rt</code>.
+          </p>`;
+        return;
+      }
+
+      const token = await getAccessToken(cid, cs, rt);
+      if (!token) {
+        document.body.innerHTML = `
+          <p style="color:red; text-align:center; margin-top:20px;">
+            ❗ Error getting access token.
+          </p>`;
+        return;
+      }
+
+      setInterval(async () => {
+        const track = await getCurrentTrack(token);
+        if (track) {
+          updateMedia(track.id, track.name);
+        }
+      }, 120);
+    }
+
+    init();
+  </script>
+</body>
+</html>
