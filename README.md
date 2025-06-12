@@ -10,5 +10,5 @@
 **Features**
 - Hide On Pause
 - Display Canvas and Lyric 
-
+<sup>- And More But I Dont Know </sup>
 
