@@ -7,16 +7,18 @@
 </p>
 
 
-**Features**
+##Features
 - Hide On Pause
 - Display Canvas and Lyric
 
 
-**How to install**
+##How to install
 - Step 1: Go to [FlowApple](https://applesang.github.io/flowapple/) And Follow The Guide Setup In That
 - Step 2: Choose Mode "Widget Player" And Copy URL Link Widget
 - Step 3: Add This In OBS Via "Browser Source"
 - Step 4: Customize Scale Or Location And Done 🎉
+
+
 
 
 
