@@ -23,6 +23,9 @@
 - Host API To Get Canvas And Lyric By [TonyBucket](https://github.com/tonyBucket)
 
 
+### You can open "Issues" to report bug/error or request new features
+
+
 
 
 
