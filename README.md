@@ -18,6 +18,10 @@
 - Step 3: Add This In OBS Via "Browser Source"
 - Step 4: Customize Scale Or Location And Done 🎉
 
+## Credit
+- Widget Player Base From Code [Spotify Widget](https://github.com/nuttylmao/spotify-widget) by [NuttyLmao](https://github.com/nuttylmao)
+- Host API To Get Canvas And Lyric By [TonyBucket](https://github.com/tonyBucket)
+
 
 
 
