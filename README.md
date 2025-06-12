@@ -9,6 +9,9 @@
 
 **Features**
 - Hide On Pause
-- Display Canvas and Lyric <br/>
-<sup>- And More But I Dont Know </sup>
+- Display Canvas and Lyric
+
+
+**How to install**
+- Step 1: Go to [FlowApple](https://applesang.github.io/flowapple/) And Follow The Guide Setup In That
 
