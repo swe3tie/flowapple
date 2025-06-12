@@ -9,6 +9,6 @@
 
 **Features**
 - Hide On Pause
-- Display Canvas and Lyric 
+- Display Canvas and Lyric <br/>
 <sup>- And More But I Dont Know </sup>
 
