@@ -7,8 +7,8 @@
 </p>
 
 
-# Features
-## - Hide On Pause
-## - Display Canvas and Lyric 
+**Features**
+- Hide On Pause
+- Display Canvas and Lyric 
 
 
