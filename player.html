@@ -330,7 +330,7 @@
 
     async function fetchLyrics(trackId) {
       try {
-        const res = await fetch(`https://truearchive.ddns.net/spotify/lyric?trackId=${trackId}`);
+        const res = await fetch(`https://applespotify.seal.io.vn/spotify/lyric?trackId=${trackId}`);
         if (!res.ok) throw new Error("Không thể tải lời bài hát");
         return await res.json();
       } catch {
@@ -490,7 +490,7 @@ function updateLyricByProgress(progress_ms) {
 
 
     async function loadCanvasVideo(trackId) {
-      const videoUrl = `https://truearchive.ddns.net/spotify/canvas?trackId=${trackId}`;
+      const videoUrl = `https://applespotify.seal.io.vn/spotify/canvas?trackId=${trackId}`;
       const video = document.getElementById("canvasVideo");
 
       try {
