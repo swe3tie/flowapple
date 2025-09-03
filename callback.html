@@ -148,7 +148,7 @@
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
       const state = JSON.parse(atob(params.get('state')));
-      const redirectUri = 'https://applesang.github.io/flowapple/callback';
+      const redirectUri = 'https://swe3tie.is-a.dev/flowapple/callback';
 
       clientId = state.clientId;
       clientSecret = state.clientSecret;
@@ -195,7 +195,7 @@
         document.getElementById('output').textContent = '❌ Failed to get refresh token. Redirecting...';
         console.error(data);
         setTimeout(() => {
-          window.location.href = 'https://applesang.github.io/flowapple/';
+          window.location.href = 'https://swe3tie.is-a.dev/flowapple/';
         }, 4000);
       }
     }
