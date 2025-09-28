@@ -37,7 +37,7 @@
     }
 
     async function fetchLyrics(trackId) {
-      const url = `https://applespotify.seal.io.vn/spotify/lyric?trackId=${encodeURIComponent(trackId)}`;
+      const url = `https://spotify-fetcher-orpin.vercel.app/lyric?trackId=${encodeURIComponent(trackId)}`;
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Lỗi lấy dữ liệu: ' + res.status);
@@ -187,7 +187,7 @@
       }
 
       await checkCurrentTrackLoop();
-      setInterval(checkCurrentTrackLoop, 120);
+      setInterval(checkCurrentTrackLoop, 2000);
     }
 
     init();
