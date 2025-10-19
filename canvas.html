@@ -85,59 +85,57 @@
       return { id: data.item.id, name: data.item.name };
     }
 
-    async function updateMedia(trackId, trackName) {
-      if (trackId === lastTrackId || !trackId || isAnimating) return;
-      isAnimating = true;
+    async function updateMedia(trackId, trackName, accessToken) {
+  if (trackId === lastTrackId || !trackId || isAnimating) return;
+  isAnimating = true;
 
-      document.title = trackName;
+  document.title = trackName;
+  const player = document.getElementById('player');
 
-      const mediaUrl = `https://spotify-fetcher-orpin.vercel.app/canvas?trackId=${trackId}`;
-      const player = document.getElementById('player');
+  try {
+    player.classList.add('zoom-out');
+    await new Promise(r => setTimeout(r, 400));
+    player.classList.remove('zoom-out');
 
-      try {
-        player.classList.add('zoom-out');
-        player.classList.remove('zoom-in');
+    // 1️⃣ Lấy album art mặc định từ Spotify
+    const resTrack = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const trackData = await resTrack.json();
+    const albumArt = trackData?.album?.images?.[0]?.url || '';
 
-        await new Promise(r => setTimeout(r, 400));
-        player.classList.remove('zoom-in', 'zoom-out');
-        player.style.transform = 'translate(-50%, -50%) scale(0.8)';
-        player.style.opacity = '0';
-        player.offsetWidth;
+    // Tạm thời hiển thị album art
+    player.innerHTML = `<img src="${albumArt}" alt="Album art" />`;
 
-        const res = await fetch(mediaUrl, { method: 'HEAD' });
-        const contentType = res.headers.get('Content-Type');
+    // 2️⃣ Kiểm tra canvas từ spotify-fetcher
+    const canvasUrl = `https://spotify-fetcher-orpin.vercel.app/canvas?trackId=${trackId}`;
+    const headRes = await fetch(canvasUrl, { method: 'HEAD' });
+    const contentType = headRes.headers.get('Content-Type');
 
-        if (contentType && contentType.includes('video')) {
-          player.innerHTML = `
-            <video src="${mediaUrl}" autoplay muted loop playsinline
-              style="background:transparent"
-              onerror="console.error('❌ Video failed to load')"></video>
-          `;
-        } else {
-          player.innerHTML = `<img src="${mediaUrl}" alt="Canvas image" />`;
-        }
-
-        lastTrackId = trackId;
-        player.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
-        player.style.transform = 'translate(-50%, -50%) scale(1)';
-        player.style.opacity = '1';
-
-        await new Promise(r => setTimeout(r, 400));
-        player.style.transition = '';
-      } catch (err) {
-        console.error("🔥 Error loading canvas:", err);
-        player.innerHTML = `<img src="${mediaUrl}" alt="Canvas image fallback" />`;
-
-        player.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
-        player.style.transform = 'translate(-50%, -50%) scale(1)';
-        player.style.opacity = '1';
-
-        await new Promise(r => setTimeout(r, 400));
-        player.style.transition = '';
-      } finally {
-        isAnimating = false;
-      }
+    // 3️⃣ Nếu có video/gif thì thay thế album art
+    if (contentType && (contentType.includes('video') || contentType.includes('gif'))) {
+      player.innerHTML = `
+        <video src="${canvasUrl}" autoplay muted loop playsinline
+          style="background:transparent"
+          onerror="console.error('❌ Canvas video failed to load')"></video>
+      `;
     }
+
+    // Hiệu ứng zoom-in
+    player.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+    player.style.transform = 'translate(-50%, -50%) scale(1)';
+    player.style.opacity = '1';
+    await new Promise(r => setTimeout(r, 400));
+    player.style.transition = '';
+
+    lastTrackId = trackId;
+  } catch (err) {
+    console.error("🔥 Error updating media:", err);
+  } finally {
+    isAnimating = false;
+  }
+}
+
 
     async function init() {
       const params = new URLSearchParams(window.location.search);
@@ -163,11 +161,12 @@
       }
 
       setInterval(async () => {
-        const track = await getCurrentTrack(token);
-        if (track) {
-          updateMedia(track.id, track.name);
-        }
-      }, 120);
+  const track = await getCurrentTrack(token);
+  if (track) {
+    updateMedia(track.id, track.name, token);
+  }
+}, 2000);
+
     }
 
     init();
