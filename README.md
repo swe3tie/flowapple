@@ -22,6 +22,17 @@
 - Widget Player Base From Code [Spotify Widget](https://github.com/nuttylmao/spotify-widget) by [NuttyLmao](https://github.com/nuttylmao)
 - Host API To Get Canvas And Lyric By [TonyBucket](https://github.com/tonyBucket)
 
+## CSS For Widget
+```
+#mainContainer {
+  filter: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+```
+<img width="1151" height="454" alt="image" src="https://github.com/user-attachments/assets/6ab68d49-0226-46ee-b7b4-2c34eea09880" />
+
+
 
 ### You can open "Issues" to report bug/error or request new features
 
