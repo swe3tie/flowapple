@@ -123,7 +123,7 @@
       min-width: 260px;
       max-width: 360px;
       padding: 14px 18px;
-      background: rgba(30,30,30,0.85);
+      background: url("https://raw.githubusercontent.com/AppleSang/Amase-6KLabs/refs/heads/main/texturepack/Dark_Iridescent_Trans_1.webp");
       backdrop-filter: blur(12px);
       color: #fff;
       border-left: 4px solid #ff4d4f;
@@ -245,21 +245,20 @@
 
       toast.className = 'toast';
       toast.innerHTML = `
-        <div class="toast-title">⚠ Spotify Fault</div>
+        <div class="toast-title">🍎 FlowApple 🍎</div>
         <div class="toast-message">${message}</div>
       `;
 
       container.appendChild(toast);
 
       setTimeout(() => {
-        toast.style.animation = 'toastOut 0.4s ease forwards';
+        toast.style.animation = 'toastOut 1.4s ease forwards';
         toast.addEventListener('animationend', () => toast.remove());
       }, 20000);
     }
 
-    /* ===== HIỆN TOAST KHI VỪA MỞ WEB ===== */
     window.addEventListener('DOMContentLoaded', () => {
-      showErrorToast('Because Spotify is currently updating its system, you cannot access the developer page at the moment. Now we just have to wait and see how they handle it.');
+      showErrorToast('This widget may have some error. You can report it via discord: applesang');
     });
   </script>
 </body>
