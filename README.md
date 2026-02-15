@@ -20,7 +20,6 @@
 
 ## Credit
 - Widget Player Base From Code [Spotify Widget](https://github.com/nuttylmao/spotify-widget) by [NuttyLmao](https://github.com/nuttylmao)
-- Host API To Get Canvas And Lyric By [TonyBucket](https://github.com/tonyBucket)
 
 ## CSS For Widget
 ```
