@@ -5,6 +5,34 @@
   <meta charset="UTF-8" />
   <title>FlowApple // Widget Player</title>
   <style>
+	.privacy-active #songLabel, 
+	.privacy-active #artistLabel, 
+	.privacy-active #albumArt {
+	  filter: blur(8px);
+	}
+	
+	/* Updated lyric container for smoother transitions */
+	#lyric {
+	  font-size: 16px;
+	  font-weight: 600;
+	  text-align: center;
+	  margin-top: -20px;
+	  color: color-mix(in srgb, var(--accent-color) 95%, white);
+	  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s ease;
+	  word-break: break-word;
+	  height: 0;
+	  opacity: 0;
+	  transform: translateY(10px);
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	}
+	
+	#lyric.visible {
+	  height: 44px;
+	  opacity: 1;
+	  transform: translateY(0);
+	}
     :root {
       --accent-color: white;
     }
