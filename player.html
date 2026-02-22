@@ -1,633 +1,648 @@
 <!DOCTYPE html>
 <html lang="en">
-<link type="image/png" sizes="96x96" rel="icon" href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png">
-<head>
-  <meta charset="UTF-8" />
-  <title>FlowApple // Widget Player</title>
-  <style>
-	.privacy-active #songLabel, 
-	.privacy-active #artistLabel, 
-	.privacy-active #albumArt {
-	  filter: blur(8px);
-	}
-	
-	/* Updated lyric container for smoother transitions */
-	#lyric {
-	  font-size: 16px;
-	  font-weight: 600;
-	  text-align: center;
-	  margin-top: -20px;
-	  color: color-mix(in srgb, var(--accent-color) 95%, white);
-	  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s ease;
-	  word-break: break-word;
-	  height: 0;
-	  opacity: 0;
-	  transform: translateY(10px);
-	  display: flex;
-	  align-items: center;
-	  justify-content: center;
-	}
-	
-	#lyric.visible {
-	  height: 44px;
-	  opacity: 1;
-	  transform: translateY(0);
-	}
-    :root {
-      --accent-color: white;
-    }
+    <link
+        type="image/png"
+        sizes="96x96"
+        rel="icon"
+        href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png"
+    />
+    <head>
+        <meta charset="UTF-8" />
+        <title>FlowApple // Widget Player</title>
+        <style>
+            .privacy-active #songLabel,
+            .privacy-active #artistLabel,
+            .privacy-active #albumArt {
+                filter: blur(8px);
+            }
 
-    * {
-      --corner-radius: 10px;
-      --album-art-size: 120px;
-    }
+            /* Updated lyric container for smoother transitions */
+            #lyric {
+                font-size: 16px;
+                font-weight: 600;
+                text-align: center;
+                margin-top: -20px;
+                color: color-mix(in srgb, var(--accent-color) 95%, white);
+                transition:
+                    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.4s ease;
+                word-break: break-word;
+                height: 0;
+                opacity: 0;
+                transform: translateY(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 
-    body {
-      margin: 0;
-      background: transparent;
-      user-select: none;
-      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    }
+            #lyric.visible {
+                height: 44px;
+                opacity: 1;
+                transform: translateY(0);
+            }
+            :root {
+                --accent-color: white;
+            }
 
-    #mainContainer {
-      display: flex;
-      position: absolute;
-      background: var(--accent-color);
-      height: var(--album-art-size);
-      margin: 20px;
-      filter: drop-shadow(15px 15px 7px rgba(0, 0, 0, 1));
-      width: 100%;
-      max-width: 500px;
-      padding: 12px;
-      border-radius: 24px;
-      bottom: calc(50% - 20px);
-      left: 50%;
-      opacity: 0;
-      transition: all 0.5s ease;
-    }
-    @keyframes zoomEffect {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-  	transform: scale(1.2);
-  }
-  60% {
-    transform: scale(0.4);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
+            * {
+                --corner-radius: 10px;
+                --album-art-size: 120px;
+            }
 
-#albumArtBox.zooming {
-  animation: zoomEffect 0.6s ease-in-out;
-}
+            body {
+                margin: 0;
+                background: transparent;
+                user-select: none;
+                font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    Segoe UI,
+                    Roboto,
+                    Helvetica,
+                    Arial,
+                    sans-serif;
+            }
 
+            #mainContainer {
+                display: flex;
+                position: absolute;
+                background: var(--accent-color);
+                height: var(--album-art-size);
+                margin: 20px;
+                filter: drop-shadow(15px 15px 7px rgba(0, 0, 0, 1));
+                width: 100%;
+                max-width: 500px;
+                padding: 12px;
+                border-radius: 24px;
+                bottom: calc(50% - 20px);
+                left: 50%;
+                opacity: 0;
+                transition: all 0.5s ease;
+            }
+            @keyframes zoomEffect {
+                0% {
+                    transform: scale(1);
+                }
+                30% {
+                    transform: scale(1.2);
+                }
+                60% {
+                    transform: scale(0.4);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
 
-    #albumArtBox {
-      position: relative;
-      border-radius: var(--corner-radius);
-      overflow: hidden;
-      margin-right: 8px;
-      width: var(--album-art-size);
-    }
+            #albumArtBox.zooming {
+                animation: zoomEffect 0.6s ease-in-out;
+            }
 
-    #albumArt, #albumArtBack, #canvasVideo {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      object-fit: cover;
-    }
+            #albumArtBox {
+                position: relative;
+                border-radius: var(--corner-radius);
+                overflow: hidden;
+                margin-right: 8px;
+                width: var(--album-art-size);
+            }
 
-    #canvasVideo {
-      z-index: 2;
-      display: none;
-    }
+            #albumArt,
+            #albumArtBack,
+            #canvasVideo {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                object-fit: cover;
+            }
 
-    #songInfoBox {
-      position: relative;
-      color: var(--accent-color);
-      width: calc(100% - 125px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
-      z-index: 4;
-      text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-    }
+            #canvasVideo {
+                z-index: 2;
+                display: none;
+            }
 
-    #songInfo {
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0.9;
-      border-radius: var(--corner-radius);
-      padding: 0 20px;
-      height: 100%;
-    }
+            #songInfoBox {
+                position: relative;
+                color: var(--accent-color);
+                width: calc(100% - 125px);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                overflow: hidden;
+                z-index: 4;
+                text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+            }
 
-    #IAmRunningOutOfNamesForTheseBoxes {
-      position: absolute;
-      width: calc(100% - 40px);
-      top: 50%;
-      transform: translateY(-50%);
-    }
+            #songInfo {
+                background: rgba(0, 0, 0, 0.5);
+                opacity: 0.9;
+                border-radius: var(--corner-radius);
+                padding: 0 20px;
+                height: 100%;
+            }
 
-    #backgroundArt {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      border-radius: var(--corner-radius);
-      overflow: hidden;
-      z-index: -1;
-      opacity: 0.9;
-    }
-    .applebox {
-      position: relative;
-      width: 320px;
-      height: 34px;
-      overflow: hidden;
-      background-color: transparent;
-      padding: 0;
-      line-height: 40px; /* Căn giữa chữ theo chiều dọc */
-    }
-.song-info-with-lyric #times {
-  transform: translateY(-10px); /* Kéo lên một chút */
-  transition: transform 0.3s ease;
-}
+            #IAmRunningOutOfNamesForTheseBoxes {
+                position: absolute;
+                width: calc(100% - 40px);
+                top: 50%;
+                transform: translateY(-50%);
+            }
 
-.song-info-with-lyric #progressBg {
-	transform: translate(40px, -20px);
-	transition: transform 0.3s ease;
-}
-.song-info-no-lyric #progressBg {
-	transform: translate(40px, -20px);
-	transition: transform 0.3s ease;
-}
-.song-info-no-lyric #times {
-  transform: translateY(-10px);
-  transition: transform 0.3s ease;
-}
+            #backgroundArt {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                border-radius: var(--corner-radius);
+                overflow: hidden;
+                z-index: -1;
+                opacity: 0.9;
+            }
+            .applebox {
+                position: relative;
+                width: 320px;
+                height: 34px;
+                overflow: hidden;
+                background-color: transparent;
+                padding: 0;
+                line-height: 40px; /* Căn giữa chữ theo chiều dọc */
+            }
+            .song-info-with-lyric #times {
+                transform: translateY(-10px); /* Kéo lên một chút */
+                transition: transform 0.3s ease;
+            }
 
-/* Khoảng cách hợp lý giữa các thành phần khi không có lyric */
-.song-info-no-lyric #artistLabel {
-  margin-top: 6px;
-  margin-bottom: 6px;
-}
+            .song-info-with-lyric #progressBg {
+                transform: translate(40px, -20px);
+                transition: transform 0.3s ease;
+            }
+            .song-info-no-lyric #progressBg {
+                transform: translate(40px, -20px);
+                transition: transform 0.3s ease;
+            }
+            .song-info-no-lyric #times {
+                transform: translateY(-10px);
+                transition: transform 0.3s ease;
+            }
 
-    #backgroundImage, #backgroundImageBack {
-      filter: blur(20px);
-      position: absolute;
-      width: 140%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+            /* Khoảng cách hợp lý giữa các thành phần khi không có lyric */
+            .song-info-no-lyric #artistLabel {
+                margin-top: 6px;
+                margin-bottom: 6px;
+            }
 
-    #backgroundImageBack {
-      z-index: -1;
-    }
+            #backgroundImage,
+            #backgroundImageBack {
+                filter: blur(20px);
+                position: absolute;
+                width: 140%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
 
-    #artistLabel {
-      color: color-mix(in srgb, var(--accent-color) 90%, white);
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+            #backgroundImageBack {
+                z-index: -1;
+            }
 
-    #artistLabel {
-      font-size: 16px;
-      font-weight: 400;
-    }
-    .applesong {
-      white-space: nowrap;
-      top: 0;
-      transform: translateX(0);
-      will-change: transform;
-      font-weight: bold;
-      font-size: 20px;
-      text-align: center;
-      color: color-mix(in srgb, var(--accent-color) 90%, white);
-    }
+            #artistLabel {
+                color: color-mix(in srgb, var(--accent-color) 90%, white);
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
 
+            #artistLabel {
+                font-size: 16px;
+                font-weight: 400;
+            }
+            .applesong {
+                white-space: nowrap;
+                top: 0;
+                transform: translateX(0);
+                will-change: transform;
+                font-weight: bold;
+                font-size: 20px;
+                text-align: center;
+                color: color-mix(in srgb, var(--accent-color) 90%, white);
+            }
 
-    #progressBg {
-      transform: translate(40px, -10px);
-      border-radius: 5px;
-      width: 75%;
-      background-color: color-mix(in srgb, var(--accent-color) 60%, white);
-    }
+            #progressBg {
+                transform: translate(40px, -10px);
+                border-radius: 5px;
+                width: 75%;
+                background-color: color-mix(
+                    in srgb,
+                    var(--accent-color) 60%,
+                    white
+                );
+            }
 
-    #progressBar {
-      border-radius: 5px;
-      height: 5px;
-      width: 0%;
-      background-color: var(--accent-color);
-      margin: 10px 0;
-      transition: width 1s ease;
-    }
+            #progressBar {
+                border-radius: 5px;
+                height: 5px;
+                width: 0%;
+                background-color: var(--accent-color);
+                margin: 10px 0;
+                transition: width 1s ease;
+            }
 
-    #times {
-      position: relative;
-      height: 16px;
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 2.2;
-      color: var(--accent-color);
-    }
+            #times {
+                position: relative;
+                height: 16px;
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 2.2;
+                color: var(--accent-color);
+            }
 
-    #progressTime, #timeRemaining {
-      position: absolute;
-      color: var(--accent-color);
-    }
+            #progressTime,
+            #timeRemaining {
+                position: absolute;
+                color: var(--accent-color);
+            }
 
-    #timeRemaining {
-      width: 100%;
-      text-align: right;
-    }
+            #timeRemaining {
+                width: 100%;
+                text-align: right;
+            }
 
-#lyric {
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  margin-top: -20px;
-  color: color-mix(in srgb, var(--accent-color) 95%, white);
-  transition: opacity 0.3s ease, height 0.3s ease;
-  word-break: break-word;
-  /* Ẩn mặc định (nếu không có nội dung) */
-  height: 0;
-  opacity: 0;
-  visibility: hidden;
+            #lyric {
+                font-size: 16px;
+                font-weight: 600;
+                text-align: center;
+                margin-top: -20px;
+                color: color-mix(in srgb, var(--accent-color) 95%, white);
+                transition:
+                    opacity 0.3s ease,
+                    height 0.3s ease;
+                word-break: break-word;
+                /* Ẩn mặc định (nếu không có nội dung) */
+                height: 0;
+                opacity: 0;
+                visibility: hidden;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-  </style>
-</head>
-<body>
-  <div id="mainContainer">
-    <div id="albumArtBox">
-      <img id="albumArt" src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png" />
-      <img id="albumArtBack" src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png" />
-      <video id="canvasVideo" muted loop autoplay playsinline></video>
-    </div>
-    <div id="songInfoBox">
-      <div id="songInfo">
-        <div id="IAmRunningOutOfNamesForTheseBoxes">
-          <div class="applebox" id="marqueeContainer">
-          <div class="applesong" id="songLabel">You Need Re Auth Spotify</div>
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="mainContainer">
+            <div id="albumArtBox">
+                <img
+                    id="albumArt"
+                    src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png"
+                />
+                <img
+                    id="albumArtBack"
+                    src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png"
+                />
+                <video id="canvasVideo" muted loop autoplay playsinline></video>
+            </div>
+            <div id="songInfoBox">
+                <div id="songInfo">
+                    <div id="IAmRunningOutOfNamesForTheseBoxes">
+                        <div class="applebox" id="marqueeContainer">
+                            <div class="applesong" id="songLabel">
+                                You Need Re Auth Spotify
+                            </div>
+                        </div>
+                        <div id="artistLabel">To Use This Widget</div>
+                        <div id="times">
+                            <div id="progressTime">0:00</div>
+                            <div id="timeRemaining">-0:00</div>
+                        </div>
+                        <div id="progressBg">
+                            <div id="progressBar"></div>
+                        </div>
+                        <div id="lyric">🎵</div>
+                    </div>
+                </div>
+                <div id="backgroundArt">
+                    <img id="backgroundImage" src="" />
+                    <img id="backgroundImageBack" src="" />
+                </div>
+            </div>
         </div>
-          <div id="artistLabel">To Use This Widget</div>
-          <div id="times">
-            <div id="progressTime">0:00</div>
-            <div id="timeRemaining">-0:00</div>
-          </div>
-          <div id="progressBg">
-            <div id="progressBar"></div>
-          </div>
-          <div id="lyric">🎵</div>
-        </div>
-      </div>
-      <div id="backgroundArt">
-        <img id="backgroundImage" src="" />
-        <img id="backgroundImageBack" src="" />
-      </div>
-    </div>
-  </div>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    let hop = parseInt(urlParams.get("hop")) || 5;
-    const cid = urlParams.get("cid") || "";
-    const cs = urlParams.get("cs") || "";
-    let rt = urlParams.get("rt") || ""; 
-	let lastProgressMs = 0;
-	let idleCounter = 0;
-    let access_token = "";
-    let currentState = false;
-    let currentSongUri = "";
-    let lyricData = null;
-    let currentTrackId = null;
-    let updateLyricInterval = null;
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            let hop = parseInt(urlParams.get("hop")) || 5;
+            const cid = urlParams.get("cid") || "";
+            const cs = urlParams.get("cs") || "";
+            let rt = urlParams.get("rt") || "";
+            let lastProgressMs = 0;
+            let idleCounter = 0;
+            let access_token = "";
+            let currentState = false;
+            let currentSongUri = "";
+            let lyricData = null;
+            let currentTrackId = null;
+            let updateLyricInterval = null;
 
-    async function RefreshAccessToken() {
-      const body = new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: rt,
-        client_id: cid
-      });
+            async function RefreshAccessToken() {
+            const body = new URLSearchParams({
+                grant_type: "refresh_token",
+                refresh_token: rt,
+                client_id: cid
+            });
 
-      const res = await fetch("https://accounts.spotify.com/api/token", {
-        method: "POST",
-        headers: {
-          Authorization: "Basic " + btoa(cid + ":" + cs),
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: body.toString()
-      });
+            const res = await fetch("https://accounts.spotify.com/api/token", {
+                method: "POST",
+                headers: {
+                Authorization: "Basic " + btoa(cid + ":" + cs),
+                "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: body.toString()
+            });
 
-      if (res.ok) {
-        const data = await res.json();
-        access_token = data.access_token;
-      }
-    }
+            if (res.ok) {
+                const data = await res.json();
+                access_token = data.access_token;
+            }
+            }
 
-    async function GetCurrentlyPlaying() {
-      try {
-        const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
-          headers: { Authorization: `Bearer ${access_token}` }
-        });
+            async function GetCurrentlyPlaying() {
+            try {
+                const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+                headers: { Authorization: `Bearer ${access_token}` }
+                });
 
-        if (res.ok) {
-          const data = await res.json();
-          UpdatePlayer(data);
-        } else if (res.status === 401) {
-          await RefreshAccessToken();
+                if (res.ok) {
+                const data = await res.json();
+                UpdatePlayer(data);
+                } else if (res.status === 401) {
+                await RefreshAccessToken();
+                }
+
+                setTimeout(GetCurrentlyPlaying, 1000);
+            } catch {
+                setTimeout(GetCurrentlyPlaying, 2000);
+            }
+            }
+
+            async function fetchLyrics(trackId) {
+            try {
+                const res = await fetch(`https://spotify-fetcher-orpin.vercel.app/lyric?trackId=${trackId}`);
+                if (!res.ok) throw new Error("Không thể tải lời bài hát");
+                return await res.json();
+            } catch {
+                return null;
+            }
+            }
+
+            const container = document.getElementById("marqueeContainer");
+            const text = document.getElementById("songLabel");
+
+            let direction = -1;
+
+            function animate() {
+            const containerWidth = container.offsetWidth;
+            const textWidth = text.scrollWidth;
+
+            if (textWidth <= containerWidth) {
+                text.style.transition = "none";
+                text.style.transform = "translateX(0)";
+                return;
+            }
+
+            const distance = textWidth - containerWidth;
+            const duration = distance * 40;
+
+            direction *= -1;
+            text.style.transition = `transform ${duration}ms linear`;
+            text.style.transform = `translateX(${direction === -1 ? -distance : 0}px)`;
+            }
+
+            animate();
+            setInterval(animate, 2000);
+
+        function updateLyricByProgress(progress_ms) {
+        const lyricElem = document.getElementById('lyric');
+        const songInfoElem = document.getElementById('songInfo');
+
+        if (!lyricData || !lyricData.lyrics || lyricData.lyrics.length === 0) {
+            lyricElem.textContent = '';
+            lyricElem.style.height = '0';
+            lyricElem.style.opacity = '0';
+            lyricElem.style.visibility = 'hidden';
+
+            songInfoElem.classList.add('song-info-no-lyric');
+            songInfoElem.classList.remove('song-info-with-lyric');
+            return;
         }
 
-        setTimeout(GetCurrentlyPlaying, 1000);
-      } catch {
-        setTimeout(GetCurrentlyPlaying, 2000);
-      }
-    }
+        let currentLine = '';
+        for (let i = 0; i < lyricData.lyrics.length; i++) {
+            const start = parseInt(lyricData.lyrics[i].startTimeMs, 10) || 0;
+            const nextStart = (i + 1 < lyricData.lyrics.length)
+            ? parseInt(lyricData.lyrics[i + 1].startTimeMs, 10)
+            : Number.MAX_SAFE_INTEGER;
 
-    async function fetchLyrics(trackId) {
-      try {
-        const res = await fetch(`https://spotify-fetcher-orpin.vercel.app/lyric?trackId=${trackId}`);
-        if (!res.ok) throw new Error("Không thể tải lời bài hát");
-        return await res.json();
-      } catch {
-        return null;
-      }
-    }
+            if (progress_ms >= start && progress_ms < nextStart) {
+            currentLine = lyricData.lyrics[i].words || '';
+            break;
+            }
+        }
 
-     const container = document.getElementById("marqueeContainer");
-    const text = document.getElementById("songLabel");
+        if (lyricElem.textContent !== currentLine) {
+            lyricElem.style.opacity = '0';
+            setTimeout(() => {
+            lyricElem.textContent = currentLine;
 
-    let direction = -1;
+            if (currentLine.trim() !== '') {
+                lyricElem.style.height = '44px';
+                lyricElem.style.opacity = '1';
+                lyricElem.style.visibility = 'visible';
 
-    function animate() {
-      const containerWidth = container.offsetWidth;
-      const textWidth = text.scrollWidth;
+                songInfoElem.classList.add('song-info-with-lyric');
+                songInfoElem.classList.remove('song-info-no-lyric');
+            } else {
+                lyricElem.style.height = '0';
+                lyricElem.style.opacity = '0';
+                lyricElem.style.visibility = 'hidden';
 
-      if (textWidth <= containerWidth) {
-        text.style.transition = "none";
-        text.style.transform = "translateX(0)";
-        return;
-      }
+                songInfoElem.classList.add('song-info-no-lyric');
+                songInfoElem.classList.remove('song-info-with-lyric');
+            }
+            }, 120);
+        }
+        }
 
-      const distance = textWidth - containerWidth;
-      const duration = distance * 40;
+            async function UpdatePlayer(data) {
+            if (!data || !data.item) {
+                console.warn("If you see this error, press F5.");
+                document.getElementById("mainContainer").style.opacity = 0;
+            currentState = false;
+            return;
+        }
+        const isPlaying = data.is_playing;
+        const songUri = data.item.uri;
+        const trackId = data.item.id;
+        const albumArt = data.item.album.images[0]?.url || "";
+        const artistNames = data.item.artists.map(artist => artist.name).join(", ");
+        const name = data.item.name;
+        const duration = data.item.duration_ms / 1000;
+        const progress = data.progress_ms / 1000;
 
-      direction *= -1;
-      text.style.transition = `transform ${duration}ms linear`;
-      text.style.transform = `translateX(${direction === -1 ? -distance : 0}px)`;
-    }
-
-    animate();
-    setInterval(animate, 2000);
-function updateLyricByProgress(progress_ms) {
-  const lyricElem = document.getElementById('lyric');
-  const songInfoElem = document.getElementById('songInfo');
-
-  if (!lyricData || !lyricData.lyrics || lyricData.lyrics.length === 0) {
-    lyricElem.textContent = '';
-    lyricElem.style.height = '0';
-    lyricElem.style.opacity = '0';
-    lyricElem.style.visibility = 'hidden';
-
-    songInfoElem.classList.add('song-info-no-lyric');
-    songInfoElem.classList.remove('song-info-with-lyric');
-    return;
-  }
-
-  let currentLine = '';
-  for (let i = 0; i < lyricData.lyrics.length; i++) {
-    const start = parseInt(lyricData.lyrics[i].startTimeMs, 10) || 0;
-    const nextStart = (i + 1 < lyricData.lyrics.length)
-      ? parseInt(lyricData.lyrics[i + 1].startTimeMs, 10)
-      : Number.MAX_SAFE_INTEGER;
-
-    if (progress_ms >= start && progress_ms < nextStart) {
-      currentLine = lyricData.lyrics[i].words || '';
-      break;
-    }
-  }
-
-  if (lyricElem.textContent !== currentLine) {
-    lyricElem.style.opacity = '0';
-    setTimeout(() => {
-      lyricElem.textContent = currentLine;
-
-      if (currentLine.trim() !== '') {
-        lyricElem.style.height = '44px';
-        lyricElem.style.opacity = '1';
-        lyricElem.style.visibility = 'visible';
-
-        songInfoElem.classList.add('song-info-with-lyric');
-        songInfoElem.classList.remove('song-info-no-lyric');
-      } else {
-        lyricElem.style.height = '0';
-        lyricElem.style.opacity = '0';
-        lyricElem.style.visibility = 'hidden';
-
-        songInfoElem.classList.add('song-info-no-lyric');
-        songInfoElem.classList.remove('song-info-with-lyric');
-      }
-    }, 120);
-  }
-}
-
-
-
-    async function UpdatePlayer(data) {
-    if (!data || !data.item) {
-    	console.warn("If you see this error, press F5.");
-    	document.getElementById("mainContainer").style.opacity = 0;
-   	currentState = false;
-  	return;
-  }
-  const isPlaying = data.is_playing;
-  const songUri = data.item.uri;
-  const trackId = data.item.id;
-  const albumArt = data.item.album.images[0]?.url || "";
-  const artistNames = data.item.artists.map(artist => artist.name).join(", ");
-  const name = data.item.name;
-  const duration = data.item.duration_ms / 1000;
-  const progress = data.progress_ms / 1000;
-
-  // --- BỔ SUNG LOGIC ẨN/HIỆN ---
-  if (data.progress_ms === lastProgressMs) {
-    idleCounter++;
-  } else {
-    idleCounter = 0;
-    lastProgressMs = data.progress_ms;
-
-    // Nếu widget đang ẩn thì hiện lại
-    if (!currentState) {
-      const main = document.getElementById("mainContainer").style.opacity = 1;
-      currentState = true;
-    }
-  }
-
-  if (hop > 0 && idleCounter >= hop) {
-    document.getElementById("mainContainer").style.opacity = 0;
-    currentState = false;
-    return; // Không cập nhật UI tiếp khi ẩn
-  }
-  // --- END LOGIC ẨN/HIỆN ---
-
-  if (songUri !== currentSongUri) {
-    currentSongUri = songUri;
-    loadCanvasVideo(trackId);
-    updateThemeColor(albumArt);
-
-    const albumArtBox = document.getElementById("albumArtBox");
-    albumArtBox.classList.remove("zooming");
-    void albumArtBox.offsetWidth; // Force reflow to re-trigger animation
-    albumArtBox.classList.add("zooming");
-
-    if (trackId !== currentTrackId) {
-      currentTrackId = trackId;
-      lyricData = await fetchLyrics(trackId);
-    }
-  }
-
-  updateLyricByProgress(data.progress_ms);
-
-  document.getElementById("albumArt").src = albumArt;
-  document.getElementById("albumArtBack").src = albumArt;
-  document.getElementById("backgroundImage").src = albumArt;
-  document.getElementById("backgroundImageBack").src = albumArt;
-
-  document.getElementById("songLabel").innerText = name;
-  document.getElementById("artistLabel").innerText = artistNames;
-
-  const perc = (progress / duration) * 100;
-  document.getElementById("progressBar").style.width = `${perc}%`;
-  document.getElementById("progressTime").innerText = formatTime(progress);
-  document.getElementById("timeRemaining").innerText = `-${formatTime(duration - progress)}`;
-
-  // Không cần thêm phần show ở đây vì đã xử lý trên khi progress thay đổi
-}
-
-
-    async function loadCanvasVideo(trackId) {
-      const videoUrl = `https://spotify-fetcher-orpin.vercel.app/canvas?trackId=${trackId}`;
-      const video = document.getElementById("canvasVideo");
-
-      try {
-        const res = await fetch(videoUrl, { method: 'HEAD' });
-        if (res.ok && res.headers.get("content-type")?.includes("video")) {
-          video.src = videoUrl;
-          video.style.display = "block";
-          video.play();
+        if (data.progress_ms === lastProgressMs) {
+            idleCounter++;
         } else {
-          video.pause();
-          video.src = "";
-          video.style.display = "none";
+            idleCounter = 0;
+            lastProgressMs = data.progress_ms;
+
+            if (!currentState) {
+            const main = document.getElementById("mainContainer").style.opacity = 1;
+            currentState = true;
+            }
         }
-      } catch {
-        video.pause();
-        video.src = "";
-        video.style.display = "none";
-      }
-    }
 
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m}:${s.toString().padStart(2, '0')}`;
-    }
+        if (hop > 0 && idleCounter >= hop) {
+            document.getElementById("mainContainer").style.opacity = 0;
+            currentState = false;
+            return;
+        }
 
-    function updateThemeColor(imageUrl) {
-  const img = new Image();
-  img.crossOrigin = "Anonymous";
-  img.src = imageUrl;
-  img.onload = function () {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
+        if (songUri !== currentSongUri) {
+            currentSongUri = songUri;
+            loadCanvasVideo(trackId);
+            updateThemeColor(albumArt);
 
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    let r = 0, g = 0, b = 0, count = 0;
-    for (let i = 0; i < data.length; i += 4 * 50) {
-      r += data[i];
-      g += data[i + 1];
-      b += data[i + 2];
-      count++;
-    }
+            const albumArtBox = document.getElementById("albumArtBox");
+            albumArtBox.classList.remove("zooming");
+            void albumArtBox.offsetWidth;
+            albumArtBox.classList.add("zooming");
 
-    r = Math.round(r / count);
-    g = Math.round(g / count);
-    b = Math.round(b / count);
-    const color = `rgb(${r},${g},${b})`;
-    const brightColor = brightenColor(color, 30); // tăng độ sáng thêm 30%
+            if (trackId !== currentTrackId) {
+            currentTrackId = trackId;
+            lyricData = await fetchLyrics(trackId);
+            }
+        }
 
-    document.documentElement.style.setProperty('--accent-color', color);
+        updateLyricByProgress(data.progress_ms);
 
-    // Apply bright color to specific elements
-    document.getElementById("songLabel").style.color = brightColor;
-    document.getElementById("artistLabel").style.color = brightColor;
-    document.getElementById("lyric").style.color = brightColor;
-    document.getElementById("progressTime").style.color = brightColor;
-    document.getElementById("timeRemaining").style.color = brightColor;
-  };
-}
+        document.getElementById("albumArt").src = albumArt;
+        document.getElementById("albumArtBack").src = albumArt;
+        document.getElementById("backgroundImage").src = albumArt;
+        document.getElementById("backgroundImageBack").src = albumArt;
 
+        document.getElementById("songLabel").innerText = name;
+        document.getElementById("artistLabel").innerText = artistNames;
 
-    function brightenColor(rgbStr, increase = 20) {
-  const rgbMatch = rgbStr.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  if (!rgbMatch) return rgbStr;
+        const perc = (progress / duration) * 100;
+        document.getElementById("progressBar").style.width = `${perc}%`;
+        document.getElementById("progressTime").innerText = formatTime(progress);
+        document.getElementById("timeRemaining").innerText = `-${formatTime(duration - progress)}`;
+        }
 
-  let [r, g, b] = rgbMatch.slice(1).map(Number);
+            async function loadCanvasVideo(trackId) {
+            const videoUrl = `https://spotify-fetcher-orpin.vercel.app/canvas?trackId=${trackId}`;
+            const video = document.getElementById("canvasVideo");
 
-  // Convert RGB to HSL
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
+            try {
+                const res = await fetch(videoUrl, { method: 'HEAD' });
+                if (res.ok && res.headers.get("content-type")?.includes("video")) {
+                video.src = videoUrl;
+                video.style.display = "block";
+                video.play();
+                } else {
+                video.pause();
+                video.src = "";
+                video.style.display = "none";
+                }
+            } catch {
+                video.pause();
+                video.src = "";
+                video.style.display = "none";
+            }
+            }
 
-  if (max === min) {
-    h = s = 0; // achromatic
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch(max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
+            function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+            }
 
-  // Increase lightness
-  l = Math.min(1, l + (increase / 100));
+            function updateThemeColor(imageUrl) {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = imageUrl;
+        img.onload = function () {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
 
-  // Convert back to HSL string
-  const hsl = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
-  return hsl;
-}
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < data.length; i += 4 * 50) {
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+            count++;
+            }
 
+            r = Math.round(r / count);
+            g = Math.round(g / count);
+            b = Math.round(b / count);
+            const color = `rgb(${r},${g},${b})`;
+            const brightColor = brightenColor(color, 30);
 
-    const outer = document.getElementById("mainContainer");
-    const maxWidth = outer.clientWidth + 50;
-    function resize() {
-      const scale = window.innerWidth / maxWidth;
-      outer.style.transform = `translate(-50%, 50%) scale(${scale})`;
-    }
+            document.documentElement.style.setProperty('--accent-color', color);
 
-    window.addEventListener("resize", resize);
-    resize();
+            document.getElementById("songLabel").style.color = brightColor;
+            document.getElementById("artistLabel").style.color = brightColor;
+            document.getElementById("lyric").style.color = brightColor;
+            document.getElementById("progressTime").style.color = brightColor;
+            document.getElementById("timeRemaining").style.color = brightColor;
+        };
+        }
 
-    RefreshAccessToken();
-    GetCurrentlyPlaying();
-  </script>
-</body>
+            function brightenColor(rgbStr, increase = 20) {
+        const rgbMatch = rgbStr.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (!rgbMatch) return rgbStr;
+
+        let [r, g, b] = rgbMatch.slice(1).map(Number);
+
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0;
+        } else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+
+        l = Math.min(1, l + (increase / 100));
+
+        const hsl = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+        return hsl;
+        }
+
+            const outer = document.getElementById("mainContainer");
+            const maxWidth = outer.clientWidth + 50;
+            function resize() {
+            const scale = window.innerWidth / maxWidth;
+            outer.style.transform = `translate(-50%, 50%) scale(${scale})`;
+            }
+
+            window.addEventListener("resize", resize);
+            resize();
+
+            RefreshAccessToken();
+            GetCurrentlyPlaying();
+        </script>
+    </body>
 </html>
