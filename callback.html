@@ -1,211 +1,233 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>FlowApple // Auth</title>
-  <link type="image/png" sizes="96x96" rel="icon" href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png">
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <head>
+        <meta charset="UTF-8" />
+        <title>FlowApple // Auth</title>
+        <link
+            type="image/png"
+            sizes="96x96"
+            rel="icon"
+            href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+            }
 
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+                font-family: Arial, sans-serif;
+                color: white;
+            }
 
-    /* Video background */
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-    }
+            /* Video background */
+            #bg-video {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: -1;
+            }
 
-    /* Centered container */
-    .content {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
+            /* Centered container */
+            .content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                text-align: center;
+                position: relative;
+                z-index: 1;
+            }
 
-    h2, p {
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 12px 24px;
-      border-radius: 10px;
-      margin: 10px 0;
-    }
+            h2,
+            p {
+                background-color: rgba(0, 0, 0, 0.5);
+                padding: 12px 24px;
+                border-radius: 10px;
+                margin: 10px 0;
+            }
 
-    #menu {
-      display: none;
-      margin-top: 30px;
-    }
+            #menu {
+                display: none;
+                margin-top: 30px;
+            }
 
-    button {
-      padding: 12px 24px;
-      margin: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      background-color: rgba(30, 215, 96, 0.7);
-      color: white;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+            button {
+                padding: 12px 24px;
+                margin: 10px;
+                font-size: 16px;
+                cursor: pointer;
+                border: none;
+                border-radius: 8px;
+                background-color: rgba(30, 215, 96, 0.7);
+                color: white;
+                transition:
+                    background-color 0.3s,
+                    transform 0.2s;
+            }
 
-    button:hover {
-      background-color: #14F6FA; 
-      transform: scale(1.2);
-    }
+            button:hover {
+                background-color: #14f6fa;
+                transform: scale(1.2);
+            }
 
-    /* Popup styles */
-    #popup {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-    }
+            /* Popup styles */
+            #popup {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 10;
+            }
 
-    .popup-content {
-      background: #222;
-      color: white;
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      min-width: 300px;
-      box-shadow: 0 0 20px #14F6FA;
-    }
+            .popup-content {
+                background: #222;
+                color: white;
+                padding: 30px;
+                border-radius: 12px;
+                text-align: center;
+                min-width: 300px;
+                box-shadow: 0 0 20px #14f6fa;
+            }
 
-    .popup-content button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #14F6FA;
-      color: black;
-      border: none;
-      border-radius: 6px;
-      cursor: not-allowed;
-      transition: all 0.3s ease;
-    }
+            .popup-content button {
+                margin-top: 20px;
+                padding: 10px 20px;
+                font-size: 16px;
+                background-color: #14f6fa;
+                color: black;
+                border: none;
+                border-radius: 6px;
+                cursor: not-allowed;
+                transition: all 0.3s ease;
+            }
 
-    .popup-content button.enabled {
-      cursor: pointer;
-      background-color: #1ed760;
-    }
-  </style>
-</head>
-<body>
+            .popup-content button.enabled {
+                cursor: pointer;
+                background-color: #1ed760;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Video background -->
+        <video id="bg-video" autoplay muted loop playsinline>
+            <source
+                src="https://github.com/AppleSang/flowapple/raw/refs/heads/main/texturepack/Honey.mp4"
+                type="video/mp4"
+            />
+            Trình duyệt của bạn không hỗ trợ video nền.
+        </video>
 
-  <!-- Video background -->
-  <video id="bg-video" autoplay muted loop playsinline>
-    <source src="https://github.com/AppleSang/flowapple/raw/refs/heads/main/texturepack/Honey.mp4" type="video/mp4">
-    Trình duyệt của bạn không hỗ trợ video nền.
-  </video>
+        <!-- Nội dung chính -->
+        <div class="content">
+            <h2 id="status">Getting Current Account...</h2>
+            <p id="output">Please wait...</p>
 
-  <!-- Nội dung chính -->
-  <div class="content">
-    <h2 id="status">Getting Current Account...</h2>
-    <p id="output">Please wait...</p>
+            <div id="menu">
+                <button onclick="goTo('canvas')">Canvas</button>
+                <button onclick="goTo('lyric')">Lyric</button>
+                <button onclick="goTo('player')">Widget Player</button>
+            </div>
+        </div>
 
-    <div id="menu">
-      <button onclick="goTo('canvas')">Canvas</button>
-      <button onclick="goTo('lyric')">Lyric</button>
-      <button onclick="goTo('player')">Widget Player</button>
-    </div>
-  </div>
+        <!-- Popup -->
+        <div id="popup">
+            <div class="popup-content">
+                <h3>⚠️ Warning ⚠️</h3>
+                <p>
+                    🔑 This URL contains your secret token. Avoid showing it on
+                    your stream and don't share it with other users. 🔑
+                </p>
+                <button id="popup-close" disabled>Close (5s)</button>
+            </div>
+        </div>
 
-  <!-- Popup -->
-  <div id="popup">
-    <div class="popup-content">
-      <h3>⚠️ Warning ⚠️</h3>
-      <p>🔑 This URL contains your secret token. Avoid showing it on your stream and don't share it with other users. 🔑</p>
-      <button id="popup-close" disabled>Close (5s)</button>
-    </div>
-  </div>
+        <script>
+            let clientId, clientSecret, refreshToken;
 
-  <script>
-    let clientId, clientSecret, refreshToken;
+            async function getRefreshToken() {
+                const params = new URLSearchParams(window.location.search);
+                const code = params.get("code");
+                const state = JSON.parse(atob(params.get("state")));
+                const redirectUri =
+                    "https://xn--zr8hy8e.swe3tie.qzz.io/flowapple/callback";
 
-    async function getRefreshToken() {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
-      const state = JSON.parse(atob(params.get('state')));
-      const redirectUri = 'https://applesang.github.io/flowapple/callback';
+                clientId = state.clientId;
+                clientSecret = state.clientSecret;
 
-      clientId = state.clientId;
-      clientSecret = state.clientSecret;
+                const creds = btoa(`${clientId}:${clientSecret}`);
 
-      const creds = btoa(`${clientId}:${clientSecret}`);
+                const res = await fetch(
+                    "https://accounts.spotify.com/api/token",
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Basic ${creds}`,
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body: `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(redirectUri)}`,
+                    },
+                );
 
-      const res = await fetch('https://accounts.spotify.com/api/token', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${creds}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(redirectUri)}`
-      });
+                const data = await res.json();
+                if (data.refresh_token) {
+                    refreshToken = data.refresh_token;
+                    document.getElementById("status").textContent =
+                        "✅ Logged in with Spotify ✅";
+                    document.getElementById("output").textContent =
+                        "Choose Mode:";
+                    document.getElementById("menu").style.display = "block";
 
-      const data = await res.json();
-      if (data.refresh_token) {
-        refreshToken = data.refresh_token;
-        document.getElementById('status').textContent = '✅ Logged in with Spotify ✅';
-        document.getElementById('output').textContent = 'Choose Mode:';
-        document.getElementById('menu').style.display = 'block';
+                    // Show popup and start countdown
+                    const popup = document.getElementById("popup");
+                    const closeBtn = document.getElementById("popup-close");
+                    popup.style.display = "flex";
 
-        // Show popup and start countdown
-        const popup = document.getElementById('popup');
-        const closeBtn = document.getElementById('popup-close');
-        popup.style.display = 'flex';
+                    let seconds = 5;
+                    closeBtn.textContent = `Close (${seconds}s)`;
+                    const interval = setInterval(() => {
+                        seconds--;
+                        closeBtn.textContent = `Close (${seconds}s)`;
+                        if (seconds <= 0) {
+                            clearInterval(interval);
+                            closeBtn.disabled = false;
+                            closeBtn.classList.add("enabled");
+                            closeBtn.textContent = "Close";
+                            closeBtn.onclick = () => {
+                                popup.style.display = "none";
+                            };
+                        }
+                    }, 1000);
+                } else {
+                    document.getElementById("output").textContent =
+                        "❌ Failed to get refresh token. Redirecting...";
+                    console.error(data);
+                    setTimeout(() => {
+                        window.location.href =
+                            "https://xn--zr8hy8e.swe3tie.qzz.io/flowapple/";
+                    }, 4000);
+                }
+            }
 
-        let seconds = 5;
-        closeBtn.textContent = `Close (${seconds}s)`;
-        const interval = setInterval(() => {
-          seconds--;
-          closeBtn.textContent = `Close (${seconds}s)`;
-          if (seconds <= 0) {
-            clearInterval(interval);
-            closeBtn.disabled = false;
-            closeBtn.classList.add('enabled');
-            closeBtn.textContent = 'Close';
-            closeBtn.onclick = () => {
-              popup.style.display = 'none';
-            };
-          }
-        }, 1000);
-      } else {
-        document.getElementById('output').textContent = '❌ Failed to get refresh token. Redirecting...';
-        console.error(data);
-        setTimeout(() => {
-          window.location.href = 'https://applesang.github.io/flowapple/';
-        }, 4000);
-      }
-    }
+            function goTo(targetPage) {
+                const url = `${targetPage}?cid=${encodeURIComponent(clientId)}&cs=${encodeURIComponent(clientSecret)}&rt=${encodeURIComponent(refreshToken)}`;
+                window.location.href = url;
+            }
 
-    function goTo(targetPage) {
-      const url = `${targetPage}?cid=${encodeURIComponent(clientId)}&cs=${encodeURIComponent(clientSecret)}&rt=${encodeURIComponent(refreshToken)}`;
-      window.location.href = url;
-    }
-
-    getRefreshToken();
-  </script>
-</body>
+            getRefreshToken();
+        </script>
+    </body>
 </html>
