@@ -1,265 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
-<link type="image/png" sizes="96x96" rel="icon" href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png">
-<head>
-  <meta charset="UTF-8">
-  <title>FlowApple // AppleSang</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <link
+        type="image/png"
+        sizes="96x96"
+        rel="icon"
+        href="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/icons8-music-heart-96.png"
+    />
+    <head>
+        <meta charset="UTF-8" />
+        <title>FlowApple // AppleSang</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: sans-serif;
-    }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                font-family: sans-serif;
+            }
 
-    body {
-      overflow-y: auto;
-      background-color: black;
-    }
+            body {
+                overflow-y: auto;
+                background-color: black;
+            }
 
-    #bgVideo {
-      position: fixed;
-      top: 0;
-      left: 0;
-      min-width: 100%;
-      min-height: 100%;
-      object-fit: cover;
-      z-index: -1;
-    }
+            #bgVideo {
+                position: fixed;
+                top: 0;
+                left: 0;
+                min-width: 100%;
+                min-height: 100%;
+                object-fit: cover;
+                z-index: -1;
+            }
 
-    .container {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px 100px;
-      text-align: center;
-      color: white;
-      text-shadow: 1px 1px 4px #000;
-      min-height: 100vh;
-    }
+            .container {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 40px 20px 100px;
+                text-align: center;
+                color: white;
+                text-shadow: 1px 1px 4px #000;
+                min-height: 100vh;
+            }
 
-    .form-box {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 30px;
-      border-radius: 12px;
-      margin-bottom: 40px;
-      max-width: 400px;
-      width: 100%;
-    }
+            .form-box {
+                background-color: rgba(0, 0, 0, 0.6);
+                padding: 30px;
+                border-radius: 12px;
+                margin-bottom: 40px;
+                max-width: 400px;
+                width: 100%;
+            }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border: none;
-      border-radius: 6px;
-    }
+            input[type="text"] {
+                width: 100%;
+                padding: 8px;
+                margin: 5px 0;
+                border: none;
+                border-radius: 6px;
+            }
 
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      border: none;
-      background-color: #1DB954;
-      color: white;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+            button {
+                margin-top: 10px;
+                padding: 10px 20px;
+                border: none;
+                background-color: #1db954;
+                color: white;
+                font-size: 16px;
+                border-radius: 8px;
+                cursor: pointer;
+            }
 
-    button:hover {
-      background-color: #1ed760;
-    }
+            button:hover {
+                background-color: #1ed760;
+            }
 
-    .info-boxes {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 900px;
-    }
+            .info-boxes {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                width: 100%;
+                max-width: 900px;
+            }
 
-    .info-box {
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 20px;
-      border-radius: 10px;
-      color: white;
-      text-align: center;
-      overflow-wrap: break-word;
-    }
+            .info-box {
+                background-color: rgba(0, 0, 0, 0.5);
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                text-align: center;
+                overflow-wrap: break-word;
+            }
 
-    .info-box img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
+            .info-box img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
 
-    .footer {
-      position: relative;
-      margin-top: 40px;
-      color: white;
-      width: 100%;
-      text-align: center;
-      z-index: 1;
-      text-shadow: 1px 1px 4px #000;
-    }
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+            .footer {
+                position: relative;
+                margin-top: 40px;
+                color: white;
+                width: 100%;
+                text-align: center;
+                z-index: 1;
+                text-shadow: 1px 1px 4px #000;
+            }
+            .toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
 
-    .toast {
-      min-width: 260px;
-      max-width: 360px;
-      padding: 14px 18px;
-      background: url("https://raw.githubusercontent.com/AppleSang/Amase-6KLabs/refs/heads/main/texturepack/Dark_Iridescent_Trans_1.webp");
-      backdrop-filter: blur(15px);
-      color: #fff;
-      border-left: 4px solid #ff4d4f;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-      animation: toastIn 0.6s ease forwards;
-      text-align: left;
-    }
+            .toast {
+                min-width: 260px;
+                max-width: 360px;
+                padding: 14px 18px;
+                background: url("https://raw.githubusercontent.com/AppleSang/Amase-6KLabs/refs/heads/main/texturepack/Dark_Iridescent_Trans_1.webp");
+                backdrop-filter: blur(15px);
+                color: #fff;
+                border-left: 4px solid #ff4d4f;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+                animation: toastIn 0.6s ease forwards;
+                text-align: left;
+            }
 
-    .toast-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
+            .toast-title {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
 
-    .toast-message {
-      font-size: 14px;
-      opacity: 0.9;
-      line-height: 1.4;
-    }
+            .toast-message {
+                font-size: 14px;
+                opacity: 0.9;
+                line-height: 1.4;
+            }
 
-    @keyframes toastIn {
-      from { transform: translateX(120%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
+            @keyframes toastIn {
+                from {
+                    transform: translateX(120%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
 
-    @keyframes toastOut {
-      to { transform: translateX(120%); opacity: 0; }
-    }
-  </style>
-</head>
-<body>
-  <!-- Video background -->
-  <video id="bgVideo" autoplay muted loop>
-    <source src="https://github.com/AppleSang/flowapple/raw/refs/heads/main/texturepack/Honey.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  <div class="toast-container" id="toastContainer"></div>
-  <!-- Main Content -->
-  <div class="container">
-    <div class="form-box">
-      <img src="https://nuttylmao.github.io/spotify-widget/configure/logo.webp" alt="Spotify Logo" style="width: 200px;"><br><br>
-      <form id="authForm">
-        <input type="text" id="clientId" placeholder="Client ID" required><br>
-        <input type="text" id="clientSecret" placeholder="Client Secret" required><br>
-        <button type="submit">Authorization</button>
-      </form>
-    </div>
+            @keyframes toastOut {
+                to {
+                    transform: translateX(120%);
+                    opacity: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Video background -->
+        <video id="bgVideo" autoplay muted loop>
+            <source
+                src="https://github.com/AppleSang/flowapple/raw/refs/heads/main/texturepack/Honey.mp4"
+                type="video/mp4"
+            />
+            Your browser does not support the video tag.
+        </video>
+        <div class="toast-container" id="toastContainer"></div>
+        <!-- Main Content -->
+        <div class="container">
+            <div class="form-box">
+                <img
+                    src="https://nuttylmao.github.io/spotify-widget/configure/logo.webp"
+                    alt="Spotify Logo"
+                    style="width: 200px"
+                /><br /><br />
+                <form id="authForm">
+                    <input
+                        type="text"
+                        id="clientId"
+                        placeholder="Client ID"
+                        required
+                    /><br />
+                    <input
+                        type="text"
+                        id="clientSecret"
+                        placeholder="Client Secret"
+                        required
+                    /><br />
+                    <button type="submit">Authorization</button>
+                </form>
+            </div>
 
-    <!-- Additional Info Boxes -->
-    <div class="info-boxes">
-      <div class="info-box">
-        <img src="https://developer.spotify.com/images/guidelines/design/full-logo-framed.svg" alt="Box 1">
-        <p> Step 1: Open <a href="https://developer.spotify.com/dashboard/create" target="_blank" style="color: #1DB954; font-weight: bold; text-decoration: underline;">"Create App" in Spotify Developer</a>. </p>
-      </div>
-      <div class="info-box">
-        <img src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/callback.png" alt="Box 2">
-        <p> Step 2: Fill in the following details </p>
-          <table style="width: 100%; color: white; border-collapse: collapse;">
-    <tr>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">App name</td>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">FlowApple</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">App description</td>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">Upgrade Your Spotify Experience </td>
-    </tr>
-    <tr>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">Redirect URIs</td>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">https://applesang.github.io/flowapple/callback</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">API/SDKs?</td>
-      <td style="padding: 8px; border: 1px solid rgba(255,255,255,0.2);">Check "Web API"</td>
-    </tr>
-  </table>
-      </div>
-      <div class="info-box">
-  <img src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/client.png" alt="Box 3">
+            <!-- Additional Info Boxes -->
+            <div class="info-boxes">
+                <div class="info-box">
+                    <img
+                        src="https://developer.spotify.com/images/guidelines/design/full-logo-framed.svg"
+                        alt="Box 1"
+                    />
+                    <p>
+                        Step 1: Open
+                        <a
+                            href="https://developer.spotify.com/dashboard/create"
+                            target="_blank"
+                            style="
+                                color: #1db954;
+                                font-weight: bold;
+                                text-decoration: underline;
+                            "
+                            >"Create App" in Spotify Developer</a
+                        >.
+                    </p>
+                </div>
+                <div class="info-box">
+                    <img
+                        src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/callback.png"
+                        alt="Box 2"
+                    />
+                    <p>Step 2: Fill in the following details</p>
+                    <table
+                        style="
+                            width: 100%;
+                            color: white;
+                            border-collapse: collapse;
+                        "
+                    >
+                        <tr>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                App name
+                            </td>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                FlowApple
+                            </td>
+                        </tr>
+                        <tr>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                App description
+                            </td>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                Upgrade Your Spotify Experience
+                            </td>
+                        </tr>
+                        <tr>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                Redirect URIs
+                            </td>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                https://xn--zr8hy8e.swe3tie.qzz.io/flowapple/callback
+                            </td>
+                        </tr>
+                        <tr>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                API/SDKs?
+                            </td>
+                            <td
+                                style="
+                                    padding: 8px;
+                                    border: 1px solid rgba(255, 255, 255, 0.2);
+                                "
+                            >
+                                Check "Web API"
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="info-box">
+                    <img
+                        src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/client.png"
+                        alt="Box 3"
+                    />
 
-        <p>Step 3: Click "View Client Secret"</p>
-      </div>
-      <div class="info-box">
-        <img src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/clientid.png" alt="Box 4">
-        <p>Step 4: Copy "Client ID" And Paste In "Client ID" </p>
-      </div>
-      <div class="info-box">
-        <img src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/clientsecret.png" alt="Box 5">
-        <p>Step 5: Copy "Client Secrect" And Paste In "Client Secrect"</p>
-      </div>
-      <div class="info-box">
-        <img src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/auth.png" alt="Box 6">
-        <p>Step 6: Click "Authorization" And Done!</p>
-      </div>
-    </div>
+                    <p>Step 3: Click "View Client Secret"</p>
+                </div>
+                <div class="info-box">
+                    <img
+                        src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/clientid.png"
+                        alt="Box 4"
+                    />
+                    <p>Step 4: Copy "Client ID" And Paste In "Client ID"</p>
+                </div>
+                <div class="info-box">
+                    <img
+                        src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/clientsecret.png"
+                        alt="Box 5"
+                    />
+                    <p>
+                        Step 5: Copy "Client Secrect" And Paste In "Client
+                        Secrect"
+                    </p>
+                </div>
+                <div class="info-box">
+                    <img
+                        src="https://raw.githubusercontent.com/AppleSang/flowapple/refs/heads/main/texturepack/auth.png"
+                        alt="Box 6"
+                    />
+                    <p>Step 6: Click "Authorization" And Done!</p>
+                </div>
+            </div>
 
-    <!-- Footer -->
-    <div class="footer">
-      <p>👋 Need support? Discord: <a href="https://github.com/applesang" target="_blank" style="color: #1DB954; font-weight: bold; text-decoration: underline;">applesang</a> // Thanks Nutty For <a href="https://github.com/nuttylmao/spotify-widget" target="_blank" style="color: #1DB954; font-weight: bold; text-decoration: underline;">Spotify Widget</a> ❤</p>
-    </div>
-  </div>
+            <!-- Footer -->
+            <div class="footer">
+                <p>
+                    👋 Need support? Discord:
+                    <a
+                        href="https://github.com/applesang"
+                        target="_blank"
+                        style="
+                            color: #1db954;
+                            font-weight: bold;
+                            text-decoration: underline;
+                        "
+                        >applesang</a
+                    >
+                    // Thanks Nutty For
+                    <a
+                        href="https://github.com/nuttylmao/spotify-widget"
+                        target="_blank"
+                        style="
+                            color: #1db954;
+                            font-weight: bold;
+                            text-decoration: underline;
+                        "
+                        >Spotify Widget</a
+                    >
+                    ❤
+                </p>
+            </div>
+        </div>
 
-  <script>
-    const redirectUri = 'https://applesang.github.io/flowapple/callback';
+        <script>
+            const redirectUri =
+                "https://xn--zr8hy8e.swe3tie.qzz.io/flowapple/callback";
 
-    document.getElementById('authForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const clientId = document.getElementById('clientId').value.trim();
-      const clientSecret = document.getElementById('clientSecret').value.trim();
+            document
+                .getElementById("authForm")
+                .addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const clientId = document
+                        .getElementById("clientId")
+                        .value.trim();
+                    const clientSecret = document
+                        .getElementById("clientSecret")
+                        .value.trim();
 
-      const state = btoa(JSON.stringify({ clientId, clientSecret }));
-      const scope = encodeURIComponent('user-read-playback-state user-read-currently-playing');
+                    const state = btoa(
+                        JSON.stringify({ clientId, clientSecret }),
+                    );
+                    const scope = encodeURIComponent(
+                        "user-read-playback-state user-read-currently-playing",
+                    );
 
-      const url = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}`;
-      window.location.href = url;
-    });
-     function showErrorToast(message = 'Something error') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
+                    const url = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}`;
+                    window.location.href = url;
+                });
+            function showErrorToast(message = "Something error") {
+                const container = document.getElementById("toastContainer");
+                const toast = document.createElement("div");
 
-      toast.className = 'toast';
-      toast.innerHTML = `
+                toast.className = "toast";
+                toast.innerHTML = `
         <div class="toast-title">🍎 FlowApple 🍎</div>
         <div class="toast-message">${message}</div>
       `;
 
-      container.appendChild(toast);
+                container.appendChild(toast);
 
-      setTimeout(() => {
-        toast.style.animation = 'toastOut 1.4s ease forwards';
-        toast.addEventListener('animationend', () => toast.remove());
-      }, 20000);
-    }
+                setTimeout(() => {
+                    toast.style.animation = "toastOut 1.4s ease forwards";
+                    toast.addEventListener("animationend", () =>
+                        toast.remove(),
+                    );
+                }, 20000);
+            }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      showErrorToast('This widget may have some error. You can report it via discord: applesang');
-    });
-  </script>
-</body>
+            window.addEventListener("DOMContentLoaded", () => {
+                showErrorToast(
+                    "This widget may have some error. You can report it via discord: applesang",
+                );
+            });
+        </script>
+    </body>
 </html>
